@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react'
 import { useGotchis } from '@/hooks/useGotchis'
 import { GotchiCard } from '@/components/GotchiCard'
+import { LendingModal } from '@/components/LendingModal'
 import { LendingStatus } from '@/types'
 
 const FILTERS: LendingStatus[] = ['available', 'listed', 'borrowed', 'expired']
@@ -63,6 +64,14 @@ export default function Dashboard() {
           <GotchiCard key={g.tokenId} gotchi={g} selected={selected.has(g.tokenId)} onToggle={() => toggle(g.tokenId)} />
         ))}
       </div>
+
+      {showModal && (
+        <LendingModal
+          tokenIds={Array.from(selected)}
+          onClose={() => setShowModal(false)}
+          onSuccess={() => { setShowModal(false); setSelected(new Set()) }}
+        />
+      )}
     </div>
   )
 }
