@@ -33,9 +33,9 @@ const MULTICALL3_ABI = [
 ] as const
 
 export interface EncodedCall {
-  target: string
+  target: `0x${string}`
   allowFailure: boolean
-  callData: string
+  callData: `0x${string}`
 }
 
 export function encodeCall(
@@ -45,7 +45,7 @@ export function encodeCall(
   args: unknown[]
 ): EncodedCall {
   return {
-    target,
+    target: target as `0x${string}`,
     allowFailure: true,
     callData: encodeFunctionData({ abi, functionName, args } as any),
   }
