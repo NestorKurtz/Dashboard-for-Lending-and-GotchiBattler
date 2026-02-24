@@ -20,7 +20,10 @@ export function GotchiCard({ gotchi, selected, onToggle }: Props) {
         <span className="text-sm font-medium truncate">{gotchi.name}</span>
         <StatusBadge status={gotchi.status} />
       </div>
-      <div className="text-xs text-gray-400">#{gotchi.tokenId}</div>
+      <div className="text-xs text-gray-400 flex gap-2">
+        <span>#{gotchi.tokenId}</span>
+        {gotchi.brs != null && <span className="text-yellow-500">BRS {gotchi.brs}</span>}
+      </div>
       {gotchi.borrower && (
         <div className="text-xs text-gray-500 mt-1 truncate">
           → {gotchi.borrower.slice(0, 6)}…{gotchi.borrower.slice(-4)}

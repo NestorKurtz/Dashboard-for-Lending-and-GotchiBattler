@@ -31,9 +31,15 @@ export default function Settings() {
             placeholder="0x…" className="mt-1 w-full bg-gray-700 rounded px-3 py-2 text-sm block" />
         </label>
         <div className="text-sm text-gray-400">
-          Connected operator (Rabby)
+          Connected wallet (owner / Trezor)
           <div className="mt-1 px-3 py-2 bg-gray-700 rounded text-sm text-purple-300">
             {connectedAddress ?? 'Not connected'}
+          </div>
+        </div>
+        <div className="text-sm text-gray-400">
+          Operator address (Rabby)
+          <div className="mt-1 px-3 py-2 bg-gray-700 rounded text-sm text-purple-300">
+            {process.env.NEXT_PUBLIC_OPERATOR_ADDRESS ?? '—'}
           </div>
         </div>
         <label className="block text-sm text-gray-400">

@@ -6,16 +6,21 @@ import { LendingModal } from '@/components/LendingModal'
 import { LendingStatus } from '@/types'
 
 const FILTERS: LendingStatus[] = ['available', 'listed', 'borrowed', 'expired']
+type SortKey = 'default' | 'brs-desc' | 'brs-asc'
 
 export default function Dashboard() {
   const { data: gotchis, isLoading, error } = useGotchis()
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [filter, setFilter] = useState<LendingStatus | 'all'>('all')
+  const [sort, setSort] = useState<SortKey>('default')
   const [showModal, setShowModal] = useState(false)
 
-  const visible = useMemo(() =>
-    (gotchis ?? []).filter(g => filter === 'all' || g.status === filter),
-    [gotchis, filter])
+  const visible = useMemo(() => {
+    const filtered = (gotchis ?? []).filter(g => filter === 'all' || g.status === filter)
+    if (sort === 'brs-desc') return [...filtered].sort((a, b) => (b.brs ?? 0) - (a.brs ?? 0))
+    if (sort === 'brs-asc')  return [...filtered].sort((a, b) => (a.brs ?? 0) - (b.brs ?? 0))
+    return filtered
+  }, [gotchis, filter, sort])
 
   const toggle = (id: number) =>
     setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -31,7 +36,13 @@ export default function Dashboard() {
           {gotchis?.length ?? 0} Gotchis
           {selected.size > 0 && <span className="ml-2 text-purple-400">({selected.size} selected)</span>}
         </h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => setSort(s => s === 'brs-desc' ? 'brs-asc' : s === 'brs-asc' ? 'default' : 'brs-desc')}
+            className={`px-3 py-1 text-sm rounded ${sort !== 'default' ? 'bg-yellow-700 text-yellow-100' : 'bg-gray-700 hover:bg-gray-600'}`}>
+            BRS {sort === 'brs-desc' ? '↓' : sort === 'brs-asc' ? '↑' : '–'}
+          </button>
+          <div className="w-px h-5 bg-gray-600" />
           {(['all', ...FILTERS] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
               className={`px-3 py-1 text-sm rounded ${filter === f ? 'bg-purple-600' : 'bg-gray-700 hover:bg-gray-600'}`}>

@@ -13,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <a href="/" className="hover:text-purple-300">Dashboard</a>
               <a href="/address-book" className="hover:text-purple-300">Addresses</a>
               <a href="/templates" className="hover:text-purple-300">Templates</a>
+              <a href="/whitelists" className="hover:text-purple-300">Whitelists</a>
               <a href="/settings" className="hover:text-purple-300">Settings</a>
             </div>
             <WalletButton />

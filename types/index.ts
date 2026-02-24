@@ -8,6 +8,8 @@ export interface Gotchi {
   borrower?: string
   expiresAt?: number     // unix seconds
   svgFront?: string      // optional: SVG from on-chain
+  brs?: number           // baseRarityScore
+  mrs?: number           // modifiedRarityScore (wearables applied)
 }
 
 export interface Address {

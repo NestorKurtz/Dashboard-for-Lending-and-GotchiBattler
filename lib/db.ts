@@ -50,5 +50,11 @@ function migrate(db: Database.Database) {
       expires_at  INTEGER,
       status      TEXT NOT NULL DEFAULT 'listed'
     );
+
+    CREATE TABLE IF NOT EXISTS tracked_whitelists (
+      id INTEGER PRIMARY KEY  -- on-chain whitelist ID
+    );
+
+    INSERT OR IGNORE INTO tracked_whitelists (id) VALUES (60);
   `)
 }
