@@ -8,7 +8,7 @@ export function useLendingWrite() {
   const { writeContractAsync, data: hash } = useWriteContract()
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash })
 
-  async function addLending(tokenId: number, borrower: string, template: Template, ownerAddress: string) {
+  async function addLending(tokenId: number, template: Template, ownerAddress: string) {
     return writeContractAsync({
       address: AAVEGOTCHI_DIAMOND,
       abi: AAVEGOTCHI_ABI,
