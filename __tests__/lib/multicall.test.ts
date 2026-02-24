@@ -7,8 +7,8 @@ describe('multicall helpers', () => {
     const call = encodeCall(
       AAVEGOTCHI_DIAMOND,
       AAVEGOTCHI_ABI as any,
-      'allAavegotchisOfOwner',
-      ['0x1234567890123456789012345678901234567890']
+      'getWhitelist',
+      [1]
     )
     expect(call.target).toBe(AAVEGOTCHI_DIAMOND)
     // Jest-correct: typeof check (not Vitest's toBeTypeOf)
