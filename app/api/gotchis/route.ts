@@ -3,6 +3,7 @@ import { AAVEGOTCHI_ABI } from '@/lib/aavegotchi-abi'
 import { AAVEGOTCHI_DIAMOND } from '@/lib/contracts'
 import { encodeCall, decodeResult, multicall, EncodedCall } from '@/lib/multicall'
 import { getNFTTokenIds, getLentOutTokenIds } from '@/lib/alchemy'
+import { enrichGotchi } from '@/lib/lending'
 
 const OWNER = process.env.NEXT_PUBLIC_OWNER_ADDRESS!
 
@@ -56,38 +57,25 @@ export async function GET() {
     // 4. Merge lending status into gotchis
     const now = Math.floor(Date.now() / 1000)
     const lentOutSet = new Set(lentOutIds)
-
     const walletSet = new Set(walletIds)
 
     const enriched = gotchis.map((g, i) => {
       const raw = lendingResults[i]
-
-      // For lentOut-only IDs (not in wallet): use on-chain status to distinguish summoned Gotchis from portals
-      // status=3 means summoned gotchi (currently borrowed out); anything else is a portal/sold token
-      if (lentOutSet.has(g.tokenId) && !walletSet.has(g.tokenId)) {
-        if (g.onchainStatus === 3) return { ...g, status: 'borrowed' }
-        return null  // portal or sold token — exclude
+      let lending = null
+      if (raw) {
+        try {
+          const l = decodeResult(AAVEGOTCHI_ABI as any, 'getGotchiLendingFromToken', raw as `0x${string}`) as any
+          lending = {
+            listingId: Number(l.listingId),
+            canceled: l.canceled,
+            completed: l.completed,
+            timeAgreed: Number(l.timeAgreed),
+            period: Number(l.period),
+            borrower: l.borrower,
+          }
+        } catch { /* leave lending null */ }
       }
-
-      // Normal wallet Gotchi — skip portals (status 0 or 2); only keep summoned Gotchis (status=3)
-      if (g.onchainStatus !== -1 && g.onchainStatus !== 3) return null
-
-      // Use lending data to determine status
-      if (!raw) return g
-
-      try {
-        const l = decodeResult(AAVEGOTCHI_ABI as any, 'getGotchiLendingFromToken', raw as `0x${string}`) as any
-        const listingId = Number(l.listingId)
-        const timeAgreed = Number(l.timeAgreed)
-
-        if (l.canceled || l.completed || listingId === 0) return { ...g, status: 'available' }
-
-        const expiresAt = timeAgreed + Number(l.period)
-        if (timeAgreed > 0) {
-          return { ...g, status: expiresAt < now ? 'expired' : 'borrowed', listingId, borrower: l.borrower, expiresAt }
-        }
-        return { ...g, status: 'listed', listingId }
-      } catch { return g }
+      return enrichGotchi(g, lending, walletSet.has(g.tokenId), lentOutSet.has(g.tokenId), now)
     }).filter(Boolean)
 
     const output = enriched.map(g => { const { onchainStatus: _, ...rest } = g as any; return rest })
