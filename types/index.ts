@@ -5,11 +5,16 @@ export interface Gotchi {
   name: string
   status: LendingStatus
   listingId?: number
+  whitelistId?: number
   borrower?: string
   expiresAt?: number     // unix seconds
   svgFront?: string      // optional: SVG from on-chain
   brs?: number           // baseRarityScore
   mrs?: number           // modifiedRarityScore (wearables applied)
+  traits?: number[]      // modifiedNumericTraits [NRG, AGG, SPK, BRN, EYS, EYC]
+  initialCost?: string   // uint96 as decimal string — required for agreeGotchiLending
+  period?: number        // lending period in seconds
+  revenueSplit?: number[] // [ownerSplit, borrowerSplit, thirdPartySplit]
 }
 
 export interface Address {

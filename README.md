@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aavegotchi Lending Dashboard
 
-## Getting Started
+A personal dashboard for managing Aavegotchi NFT lending on Base mainnet.
 
-First, run the development server:
+Built to manage a collection of ~68 Aavegotchis from a Trezor cold wallet, with a Rabby hot wallet set as the on-chain lending operator. The operator can list, cancel, and batch-manage all lending activity without ever needing the Trezor again.
+
+## What it does
+
+- **Dashboard** — grid view of all Gotchis with live status (available / listed / lent out)
+- **Gotchi detail** — per-Gotchi lending history, current listing, quick-lend form
+- **Address book** — named borrower addresses with tags (own wallets / friends / family)
+- **Templates** — saved lending configs (period, revenue split, whitelist) for one-click relisting
+- **Whitelists** — manage on-chain Aavegotchi whitelists
+- **Batch calldata** — generate multicall3 calldata for agreeing multiple lendings at once from Basescan
+
+## Stack
+
+| Layer | Tech |
+|---|---|
+| Framework | Next.js 14 (App Router) |
+| Chain reads | Alchemy RPC + multicall3 |
+| Wallet / signing | wagmi v2 + viem (Rabby) |
+| Styling | Tailwind CSS |
+| Local DB | SQLite (better-sqlite3) |
+| Network | Base mainnet (chain ID 8453) |
+
+## Setup
 
 ```bash
+cp .env.local.example .env.local
+# fill in your values
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Required env vars (see `.env.local.example`):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+ALCHEMY_API_KEY=            # Alchemy API key for Base mainnet RPC
+NEXT_PUBLIC_OWNER_ADDRESS=  # Trezor / cold wallet address (NFT owner)
+NEXT_PUBLIC_OPERATOR_ADDRESS= # Rabby / hot wallet address (lending operator)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture
 
-## Learn More
+```
+Rabby Wallet (browser)
+      │ wagmi v2
+      ▼
+Next.js 14 App
+├── API routes — chain reads via Alchemy + multicall3
+├── API routes — local SQLite (address book, templates)
+└── React UI (Tailwind)
+      │
+      ▼
+Aavegotchi Diamond on Base
+0xA99c4B08201F2913Db8D28e71d020c4298F29dBF
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Security model
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Owner (Trezor) never signs routine transactions — operator is set once
+- `ALCHEMY_API_KEY` and wallet addresses live in `.env.local`, never committed
+- SQLite DB (`data/`) is local only, never committed

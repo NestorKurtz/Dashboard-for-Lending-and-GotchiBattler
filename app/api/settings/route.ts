@@ -1,18 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getDb } from '@/lib/db'
+import { NextResponse } from 'next/server'
 
+// Settings are managed exclusively via environment variables — nothing sensitive
+// is stored in the DB or sent to the browser.
 export async function GET() {
-  const db = getDb()
-  const rows = db.prepare(`SELECT key, value FROM settings`).all() as { key: string; value: string }[]
-  return NextResponse.json(Object.fromEntries(rows.map(r => [r.key, r.value])))
-}
-
-export async function POST(req: NextRequest) {
-  const data = await req.json()
-  const db = getDb()
-  const upsert = db.prepare(`INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value`)
-  for (const [key, value] of Object.entries(data)) {
-    upsert.run(key, value)
-  }
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({
+    ownerAddress:    process.env.NEXT_PUBLIC_OWNER_ADDRESS    ?? '',
+    operatorAddress: process.env.NEXT_PUBLIC_OPERATOR_ADDRESS ?? '',
+  })
 }

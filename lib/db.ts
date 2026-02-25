@@ -6,9 +6,9 @@ let _db: Database.Database | null = null
 
 export function getDb(): Database.Database {
   if (_db) return _db
-  const dataDir = path.join(process.cwd(), 'data')
-  fs.mkdirSync(dataDir, { recursive: true })
-  _db = new Database(path.join(dataDir, 'dashboard.db'))
+  const dbFile = process.env.TEST_DB_PATH ?? path.join(process.cwd(), 'data', 'dashboard.db')
+  fs.mkdirSync(path.dirname(dbFile), { recursive: true })
+  _db = new Database(dbFile)
   _db.pragma('journal_mode = WAL')
   migrate(_db)
   return _db
@@ -41,6 +41,7 @@ function migrate(db: Database.Database) {
       revenue_tokens      TEXT NOT NULL DEFAULT '[]'
     );
 
+    -- Phase 2: will be populated by background worker for auto-relisting and notifications
     CREATE TABLE IF NOT EXISTS lending_cache (
       listing_id  INTEGER PRIMARY KEY,
       token_id    INTEGER NOT NULL,

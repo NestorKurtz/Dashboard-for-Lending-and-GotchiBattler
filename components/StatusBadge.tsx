@@ -7,9 +7,22 @@ const colors: Record<LendingStatus, string> = {
   expired:   'bg-red-700 text-red-100',
 }
 
-export function StatusBadge({ status }: { status: LendingStatus }) {
+interface Props {
+  status: LendingStatus
+  borrower?: string
+  whitelistId?: number
+}
+
+export function StatusBadge({ status, borrower, whitelistId }: Props) {
+  let title: string | undefined
+  if (status === 'borrowed' && borrower) title = borrower
+  if (status === 'listed' && whitelistId) title = `#${whitelistId}`
+
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors[status]}`}>
+    <span
+      title={title}
+      className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors[status]} ${title ? 'cursor-help' : ''}`}
+    >
       {status}
     </span>
   )

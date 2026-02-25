@@ -7,6 +7,7 @@ export interface ParsedGotchi {
   onchainStatus: number
   brs?: number
   mrs?: number
+  traits?: number[]
 }
 
 export interface DecodedLending {
@@ -16,6 +17,9 @@ export interface DecodedLending {
   timeAgreed: number
   period: number
   borrower: string
+  whitelistId: number
+  initialCost: bigint   // uint96 — must be passed unchanged to agreeGotchiLending
+  revenueSplit: number[] // [ownerSplit, borrowerSplit, thirdPartySplit]
 }
 
 /**
@@ -28,11 +32,24 @@ export function enrichGotchi(
   inWallet: boolean,
   lentOut: boolean,
   now: number,
-): (ParsedGotchi & { listingId?: number; borrower?: string; expiresAt?: number }) | null {
+): (ParsedGotchi & {
+  listingId?: number; borrower?: string; expiresAt?: number
+  whitelistId?: number; initialCost?: bigint; period?: number; revenueSplit?: number[]
+}) | null {
   // Lent-out-only (physically transferred away from owner wallet):
   // status=3 means summoned gotchi (currently borrowed); anything else is a portal/sold token.
   if (lentOut && !inWallet) {
-    if (g.onchainStatus === 3) return { ...g, status: 'borrowed' }
+    if (g.onchainStatus === 3) return {
+      ...g,
+      status: 'borrowed',
+      ...(lending ? {
+        borrower: lending.borrower,
+        listingId: lending.listingId,
+        initialCost: lending.initialCost,
+        period: lending.period,
+        revenueSplit: lending.revenueSplit,
+      } : {}),
+    }
     return null
   }
 
@@ -53,9 +70,20 @@ export function enrichGotchi(
       listingId: lending.listingId,
       borrower: lending.borrower,
       expiresAt,
+      initialCost: lending.initialCost,
+      period: lending.period,
+      revenueSplit: lending.revenueSplit,
     }
   }
-  return { ...g, status: 'listed', listingId: lending.listingId }
+  return {
+    ...g,
+    status: 'listed',
+    listingId: lending.listingId,
+    whitelistId: lending.whitelistId || undefined,
+    initialCost: lending.initialCost,
+    period: lending.period,
+    revenueSplit: lending.revenueSplit,
+  }
 }
 
 /**

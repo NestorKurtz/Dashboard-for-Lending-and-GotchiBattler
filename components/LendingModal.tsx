@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useLendingWrite } from '@/hooks/useLendingWrite'
+import { errMsg } from '@/lib/utils'
 import { Template } from '@/types'
 
 interface Props {
@@ -10,12 +11,13 @@ interface Props {
 }
 
 export function LendingModal({ tokenIds, onClose, onSuccess }: Props) {
-  const { addLending, isConfirming } = useLendingWrite()
+  const { batchAddLending, isConfirming } = useLendingWrite()
   const [templates, setTemplates] = useState<Template[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null)
   const [status, setStatus] = useState('')
 
-  const OWNER = process.env.NEXT_PUBLIC_OWNER_ADDRESS!
+  const OWNER = process.env.NEXT_PUBLIC_OWNER_ADDRESS
+  if (!OWNER) throw new Error('NEXT_PUBLIC_OWNER_ADDRESS is not set')
 
   useEffect(() => {
     fetch('/api/templates').then(r => r.json()).then(setTemplates)
@@ -24,20 +26,14 @@ export function LendingModal({ tokenIds, onClose, onSuccess }: Props) {
   async function submit() {
     const template = templates.find(t => t.id === selectedTemplate)
     if (!template) return
-    setStatus(`Lending ${tokenIds.length} gotchi(s)…`)
-    let done = 0
-    for (const id of tokenIds) {
-      try {
-        await addLending(id, template, OWNER)
-        done++
-        setStatus(`${done}/${tokenIds.length} submitted…`)
-      } catch (e: any) {
-        setStatus(`Error on #${id}: ${e.shortMessage ?? e.message}`)
-        return
-      }
+    setStatus(`Listing ${tokenIds.length} gotchi(s)…`)
+    try {
+      await batchAddLending(tokenIds, template, OWNER!)
+      setStatus('Done!')
+      setTimeout(onSuccess, 1000)
+    } catch (e) {
+      setStatus(`Error: ${errMsg(e)}`)
     }
-    setStatus('Done!')
-    setTimeout(onSuccess, 1000)
   }
 
   const template = templates.find(t => t.id === selectedTemplate)

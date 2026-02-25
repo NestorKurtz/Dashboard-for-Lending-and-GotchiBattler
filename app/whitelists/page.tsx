@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useWriteContract } from 'wagmi'
 import { AAVEGOTCHI_ABI } from '@/lib/aavegotchi-abi'
 import { AAVEGOTCHI_DIAMOND } from '@/lib/contracts'
+import { errMsg } from '@/lib/utils'
 import { Address } from '@/types'
 
 interface WhitelistData {
@@ -83,8 +84,8 @@ export default function Whitelists() {
       setAddInputs(prev => ({ ...prev, [whitelistId]: '' }))
       showFeedback(whitelistId, 'Tx submitted — reload in a moment to confirm')
       setTimeout(loadAll, 5000)
-    } catch (e: any) {
-      showFeedback(whitelistId, `Error: ${e.shortMessage ?? e.message}`)
+    } catch (e) {
+      showFeedback(whitelistId, `Error: ${errMsg(e)}`)
     } finally {
       setPending(null)
     }
@@ -101,8 +102,8 @@ export default function Whitelists() {
       })
       showFeedback(whitelistId, 'Tx submitted — reload in a moment to confirm')
       setTimeout(loadAll, 5000)
-    } catch (e: any) {
-      showFeedback(whitelistId, `Error: ${e.shortMessage ?? e.message}`)
+    } catch (e) {
+      showFeedback(whitelistId, `Error: ${errMsg(e)}`)
     } finally {
       setPending(null)
     }

@@ -1,55 +1,39 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import { useEffect, useState } from 'react'
+
+interface Config {
+  ownerAddress: string
+  operatorAddress: string
+}
 
 export default function Settings() {
-  const { address: connectedAddress } = useAccount()
-  const [settings, setSettings] = useState({ ownerAddress: '', alchemyKey: '' })
-  const [saved, setSaved] = useState(false)
+  const [config, setConfig] = useState<Config>({ ownerAddress: '', operatorAddress: '' })
 
   useEffect(() => {
-    fetch('/api/settings').then(r => r.json()).then(s => setSettings(prev => ({ ...prev, ...s })))
+    fetch('/api/settings').then(r => r.json()).then(setConfig)
   }, [])
 
-  async function save() {
-    await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(settings),
-    })
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  function Row({ label, value }: { label: string; value: string }) {
+    return (
+      <div>
+        <div className="text-sm text-gray-400 mb-1">{label}</div>
+        <div className="px-3 py-2 bg-gray-700 rounded text-sm font-mono text-purple-300 break-all">
+          {value || '—'}
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="max-w-lg">
       <h1 className="text-xl font-bold mb-4">Settings</h1>
       <div className="bg-gray-800 rounded-lg p-4 space-y-4">
-        <label className="block text-sm text-gray-400">
-          Trezor (owner) address
-          <input value={settings.ownerAddress} onChange={e => setSettings(s => ({ ...s, ownerAddress: e.target.value }))}
-            placeholder="0x…" className="mt-1 w-full bg-gray-700 rounded px-3 py-2 text-sm block" />
-        </label>
-        <div className="text-sm text-gray-400">
-          Connected wallet (owner / Trezor)
-          <div className="mt-1 px-3 py-2 bg-gray-700 rounded text-sm text-purple-300">
-            {connectedAddress ?? 'Not connected'}
-          </div>
-        </div>
-        <div className="text-sm text-gray-400">
-          Operator address (Rabby)
-          <div className="mt-1 px-3 py-2 bg-gray-700 rounded text-sm text-purple-300">
-            {process.env.NEXT_PUBLIC_OPERATOR_ADDRESS ?? '—'}
-          </div>
-        </div>
-        <label className="block text-sm text-gray-400">
-          Alchemy API key
-          <input type="password" value={settings.alchemyKey} onChange={e => setSettings(s => ({ ...s, alchemyKey: e.target.value }))}
-            className="mt-1 w-full bg-gray-700 rounded px-3 py-2 text-sm block" />
-        </label>
-        <button onClick={save} className="w-full bg-purple-600 rounded py-2 text-sm hover:bg-purple-500">
-          {saved ? 'Saved!' : 'Save settings'}
-        </button>
+        <Row label="Owner address (Trezor)" value={config.ownerAddress} />
+        <Row label="Operator address (Rabby)" value={config.operatorAddress} />
+        <Row label="Alchemy API key" value="Configured via server environment variable" />
+        <p className="text-xs text-gray-500">
+          To change any of these values, update <code className="text-gray-400">.env.local</code> and restart the server.
+        </p>
       </div>
     </div>
   )

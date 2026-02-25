@@ -144,6 +144,57 @@ export const AAVEGOTCHI_ABI = [
     inputs: [{ name: '_listingId', type: 'uint32' }],
     outputs: [],
   },
+  // --- Write: batch add listings ---
+  {
+    name: 'batchAddGotchiListing',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{
+      name: '_listings',
+      type: 'tuple[]',
+      components: [
+        { name: 'tokenId',       type: 'uint32'    },
+        { name: 'initialCost',   type: 'uint96'    },
+        { name: 'period',        type: 'uint32'    },
+        { name: 'revenueSplit',  type: 'uint8[3]'  },
+        { name: 'originalOwner', type: 'address'   },
+        { name: 'thirdParty',    type: 'address'   },
+        { name: 'whitelistId',   type: 'uint32'    },
+        { name: 'revenueTokens', type: 'address[]' },
+      ],
+    }],
+    outputs: [],
+  },
+  // --- Write: batch cancel listed ---
+  {
+    name: 'batchCancelGotchiLending',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: '_listingIds', type: 'uint32[]' }],
+    outputs: [],
+  },
+  // --- Write: batch claim and end borrowed ---
+  {
+    name: 'batchClaimAndEndGotchiLending',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: '_tokenIds', type: 'uint32[]' }],
+    outputs: [],
+  },
+  // --- Write: agree to a listing (called by borrower) ---
+  {
+    name: 'agreeGotchiLending',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: '_listingId',     type: 'uint32'   },
+      { name: '_erc721TokenId', type: 'uint32'   },
+      { name: '_initialCost',   type: 'uint96'   },
+      { name: '_period',        type: 'uint32'   },
+      { name: '_revenueSplit',  type: 'uint8[3]' },
+    ],
+    outputs: [],
+  },
   // --- Read: whitelist by ID ---
   {
     name: 'getWhitelist',
@@ -154,8 +205,8 @@ export const AAVEGOTCHI_ABI = [
       name: 'whitelist_',
       type: 'tuple',
       components: [
-        { name: 'name',               type: 'string'    },
         { name: 'owner',              type: 'address'   },
+        { name: 'name',               type: 'string'    },
         { name: 'whitelistAddresses', type: 'address[]' },
       ],
     }],

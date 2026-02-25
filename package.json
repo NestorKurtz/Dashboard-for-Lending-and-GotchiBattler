@@ -12,7 +12,11 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "moduleNameMapper": { "^@/(.*)$": "<rootDir>/$1" }
+    "moduleNameMapper": { "^@/(.*)$": "<rootDir>/$1" },
+    "maxWorkers": 1,
+    "testEnvironmentOptions": {
+      "env": { "TEST_DB_PATH": "/tmp/aavegotchi-dashboard-test.db" }
+    }
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",

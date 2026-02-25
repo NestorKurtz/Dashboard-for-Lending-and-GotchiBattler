@@ -44,3 +44,6 @@ next-env.d.ts
 # local data
 data/
 .env.local
+
+# generated calldata artifacts
+batch-agree-calldata.txt
