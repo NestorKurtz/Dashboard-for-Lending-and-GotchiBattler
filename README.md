@@ -4,6 +4,8 @@ A self-hosted web dashboard for managing Aavegotchi NFT lending on **Base mainne
 
 Built around a cold/hot wallet split: a Trezor hardware wallet owns the NFTs, while a Rabby hot wallet is set as the on-chain lending operator. The operator can list, cancel, and batch-manage all lending activity — the Trezor never needs to sign again.
 
+![Dashboard screenshot](https://github.com/user-attachments/assets/a2c1333d-4f6a-411b-a72c-0a5e2ec5f172)
+
 ---
 
 ## Features
